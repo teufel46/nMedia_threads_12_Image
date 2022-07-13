@@ -7,22 +7,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.api.PostsApi
-import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentLoginBinding
+import ru.netology.nmedia.view.afterTextChanged
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class LoginFragment : Fragment() {
 
-    private var fragmentBinding : FragmentLoginBinding? = null
+    private var fragmentBinding: FragmentLoginBinding? = null
 
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment,
     )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private val viewModelAuth: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,19 +34,40 @@ class LoginFragment : Fragment() {
         )
         fragmentBinding = binding
 
-        binding.username.requestFocus()
+        with(binding) {
+            username.requestFocus()
 
-        binding.login.setOnClickListener {
-            viewModel.updateUser(
-          //      "netology",
-                binding.username.text.toString(),
-          //      "secret",
-                binding.password.text.toString()
-                 )
+            username.afterTextChanged {
+                viewModelAuth.loginDataChanged(
+                    username.text.toString(),
+                    password.text.toString()
+                )
+            }
 
-            findNavController().navigateUp()
+            password.apply {
+                afterTextChanged {
+                    viewModelAuth.loginDataChanged(
+                        username.text.toString(),
+                        password.text.toString()
+                    )
+                }
+
+                login.setOnClickListener {
+                    viewModel.updateUser(
+                       // "netology",
+                           binding.username.text.toString(),
+                       // "secret",
+                           binding.password.text.toString()
+                    )
+                    findNavController().navigateUp()
+                }
+
+                viewModelAuth.loginFormState.observe(viewLifecycleOwner) {
+                    login.isEnabled = it.isDataValid
+                }
+                return root
+            }
         }
-        return binding.root
     }
 
     override fun onDestroyView() {
@@ -56,3 +75,5 @@ class LoginFragment : Fragment() {
         super.onDestroyView()
     }
 }
+
+

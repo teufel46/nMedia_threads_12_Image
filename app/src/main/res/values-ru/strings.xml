@@ -33,4 +33,6 @@
     <string name="prompt_login">Логин</string>
     <string name="prompt_password">Пароль</string>
     <string name="action_sign_in">Войти или зарегистрироваться</string>
+    <string name="guest_entrance">Гостевой вход</string>
+    <string name="welcome">"Добро пожаловать пользователь "</string>
 </resources>

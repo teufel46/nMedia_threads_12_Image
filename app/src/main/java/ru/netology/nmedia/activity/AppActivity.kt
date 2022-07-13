@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
@@ -45,6 +46,14 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
         viewModel.data.observe(this){
             invalidateOptionsMenu()
+            if (it.id == 0L) {
+                Toast.makeText(this@AppActivity,getString(R.string.guest_entrance), Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                val welcome = getString(R.string.welcome)
+                Toast.makeText(this@AppActivity,"$welcome ${it.id}", Toast.LENGTH_LONG)
+                    .show()
+            }
         }
 
         checkGoogleApiAvailability()
@@ -68,11 +77,9 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 true
             }
             R.id.signup -> {
-                // TODO: just hardcode it, implementation must be in homework
                  true
             }
             R.id.signout -> {
-                // TODO: just hardcode it, implementation must be in homework
                 AppAuth.getInstance().removeAuth()
                 true
             }

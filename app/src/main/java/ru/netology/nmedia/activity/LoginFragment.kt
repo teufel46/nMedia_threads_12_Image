@@ -45,6 +45,7 @@ class LoginFragment : Fragment() {
           //      "secret",
                 binding.password.text.toString()
                  )
+
             findNavController().navigateUp()
         }
         return binding.root

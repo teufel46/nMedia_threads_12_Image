@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
@@ -12,6 +13,7 @@ import ru.netology.nmedia.BuildConfig.BASE_URL
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 
 interface OnInteractionListener {
@@ -50,16 +52,14 @@ class PostViewHolder(
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
 
-            Glide.with(binding.AttachmentImage)
-                .load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
-        //        .placeholder(R.drawable.ic_netology_original_48dp)
-      //         .error(R.drawable.ic_baseline_error_outline_24)
-                .timeout(10_000)
-                .into(binding.AttachmentImage)
+            AttachmentImage.load("${BuildConfig.BASE_URL}/media/${post.attachment?.url}")
+
+            menu.visibility = if (post.ownedByMe) View.VISIBLE else View.INVISIBLE
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)
+                    menu.setGroupVisible(R.id.owned, post.ownedByMe)
                     setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             R.id.remove -> {

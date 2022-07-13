@@ -15,7 +15,6 @@ import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.util.CompanionArg.Companion.longArg
 import ru.netology.nmedia.util.CompanionArg.Companion.textArg
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -41,6 +40,7 @@ class FeedFragment : Fragment() {
 
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
+
             }
 
             override fun onShare(post: Post) {
@@ -77,17 +77,24 @@ class FeedFragment : Fragment() {
             adapter.submitList(state.posts)
             binding.emptyText.isVisible = state.empty
         }
+
         viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            // TODO: just log it, interaction must be in homework
-            println(state)
+            if (state > 0) binding.newerPostFab.isVisible = true
         }
 
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()
         }
 
+
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        }
+
+        binding.newerPostFab.setOnClickListener {
+            viewModel.loadUnshowedPosts()
+            binding.list.smoothScrollToPosition(0)
+            binding.newerPostFab.isVisible = false
         }
 
         return binding.root

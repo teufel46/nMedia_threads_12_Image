@@ -10,6 +10,9 @@ interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
     fun getAll(): Flow<List<PostEntity>>
 
+    @Query("SELECT * FROM PostEntity WHERE showed=0 ORDER BY id DESC")
+    fun getUnshowed(): Flow<List<PostEntity>>
+
     @Query("SELECT COUNT(*) == 0 FROM PostEntity")
     suspend fun isEmpty(): Boolean
 
@@ -24,6 +27,9 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
     suspend fun removeById(id: Long)
+
+    @Query("UPDATE PostEntity SET showed=1 WHERE showed=0")
+    suspend fun showAll()
 }
 
 class Converters {

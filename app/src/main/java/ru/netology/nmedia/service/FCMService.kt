@@ -10,12 +10,11 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.PushMessage
 import kotlin.random.Random
 
-
 class FCMService : FirebaseMessagingService() {
-    private val action = "action"
-    private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
 
@@ -34,44 +33,29 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        val pushMessage = gson.fromJson(message.data["content"], PushMessage::class.java)
 
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
+        if (pushMessage.recipientId == null ||
+            pushMessage.recipientId == AppAuth.getInstance().authStateFlow.value.id
+        ) {
+            sendNotification(pushMessage.content)
+        } else {
+            AppAuth.getInstance().sendPushToken()
         }
     }
 
-    override fun onNewToken(token: String) {
-        println(token)
-    }
-
-    private fun handleLike(content: Like) {
+    fun sendNotification(message: String) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(
-                getString(
-                    R.string.notification_user_liked,
-                    content.userName,
-                    content.postAuthor,
-                )
-            )
+            .setContentTitle(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         NotificationManagerCompat.from(this)
             .notify(Random.nextInt(100_000), notification)
     }
+
+    override fun onNewToken(token: String) {
+        AppAuth.getInstance().sendPushToken(token)
+    }
 }
-
-enum class Action {
-    LIKE,
-}
-
-data class Like(
-    val userId: Long,
-    val userName: String,
-    val postId: Long,
-    val postAuthor: String,
-)
-

@@ -27,7 +27,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = PostsApi.service.getAll()
+            val response = Api.service.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -54,7 +54,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
             delay(10_000L)
-            val response = PostsApi.service.getNewer(id)
+            val response = Api.service.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -69,7 +69,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun save(post: Post) {
         try {
-            val response = PostsApi.service.save(post)
+            val response = Api.service.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -86,7 +86,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun removeById(id: Long) {
         try {
             dao.removeById(id)
-            val response = PostsApi.service.removeById(id)
+            val response = Api.service.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -99,7 +99,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun likeById(id: Long) {
         try {
-            val response = PostsApi.service.getById(id)
+            val response = Api.service.getById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -108,14 +108,14 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             if (post.likedByMe) {
                 val dislikedPost = post.copy(likedByMe = false, likes = post.likes - 1)
                 dao.insert(PostEntity.fromDto(dislikedPost))
-                val response = PostsApi.service.dislikeById(id)
+                val response = Api.service.dislikeById(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
             } else {
                 val likedPost = post.copy(likedByMe = true, likes = post.likes + 1)
                 dao.insert(PostEntity.fromDto(likedPost))
-                val response = PostsApi.service.likeById(id)
+                val response = Api.service.likeById(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -150,7 +150,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 "file", upload.file.name, upload.file.asRequestBody()
             )
 
-            val response = PostsApi.service.upload(media)
+            val response = Api.service.upload(media)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -165,7 +165,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun updateUser(login : String, pass : String) : AuthState {
         try {
-            val response = PostsApi.service.updateUser(login, pass)
+            val response = Api.service.updateUser(login, pass)
 
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
